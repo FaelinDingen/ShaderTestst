@@ -77,14 +77,17 @@ Shader "Unlit/HealthBar"
 
             fixed4 frag (Interpolators i) : SV_Target
             {
+                //dynamic rounded corner clipping
                 float2 uniform_uv = float2(i.uv.x * GetScaleFromWorldMatrix(unity_ObjectToWorld).x / GetScaleFromWorldMatrix(unity_ObjectToWorld).y, i.uv.y);
                 float maxX = GetScaleFromWorldMatrix(unity_ObjectToWorld).x / GetScaleFromWorldMatrix(unity_ObjectToWorld).y;
                 float2 pointOnLineSegment = float2(clamp(uniform_uv.x,.5, maxX - .5),.5);
                 float sdf = distance(pointOnLineSegment, uniform_uv) * 2 - 1;
                 clip(-sdf);
                 float borderSdf = sdf + _BorderStrength;
-                float borderMask = step(0, -borderSdf);
-                //return float4(borderMask.xxx,1);
+                
+                float pd = fwidth(borderSdf);
+                
+                float borderMask = 1 - saturate(borderSdf / pd);
                 
                 float4 col = tex2D(_HealthBarTexture, float2(saturate(InverseLerp(.2, .8, _HealthValue)), i.uv.y));
                 
