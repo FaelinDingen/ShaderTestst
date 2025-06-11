@@ -63,9 +63,10 @@ Shader "Unlit/SimpleLighting"
                 //Specular lighting, Binn Pong
                 float3 V = normalize(_WorldSpaceCameraPos - i.wPos);
                 float3 H = normalize(L + V);
-                float3 blinnPhong = saturate(dot(H,N)) * (lambert > 0);
+                //float3 blinnPhong = saturate(dot(H,N)) * (lambert > 0);
+                float3 blinnPhong = saturate(dot(H,N));
                 float specularExponent = exp2(_Gloss * 11 + 2);
-                float3 specularLight =pow(blinnPhong, specularExponent);
+                float3 specularLight =pow(blinnPhong, specularExponent) * _Gloss;
                 specularLight *= _LightColor0;
 
                 //fresnel
@@ -80,7 +81,7 @@ Shader "Unlit/SimpleLighting"
                 //specularLight -= fresnel;
                 
                 //return float4( diffuseLight * _Color + specularLight - fresnel,1);
-                return float4( diffuseLight * _Color + specularLight,1);
+                return float4( diffuseLight * _Color + specularLight,1 * .5);
             }
             ENDCG
         }
@@ -137,16 +138,17 @@ Shader "Unlit/SimpleLighting"
                 
                 //Diffuse Lighting, Lambertian
                 float3 N = normalize(i.normal);
-                float3 L = _WorldSpaceLightPos0.xyz;
+                float3 L = _WorldSpaceLightPos0.xyz - i.wPos;
                 float3 lambert = saturate(dot(N,L));
                 float3 diffuseLight = lambert * _LightColor0;
                 
                 //Specular lighting, Binn Pong
                 float3 V = normalize(_WorldSpaceCameraPos - i.wPos);
                 float3 H = normalize(L + V);
-                float3 blinnPhong = saturate(dot(H,N)) * (lambert > 0);
+                //float3 blinnPhong = saturate(dot(H,N)) * (lambert > 0);
+                float3 blinnPhong = saturate(dot(H,N));
                 float specularExponent = exp2(_Gloss * 11 + 2);
-                float3 specularLight =pow(blinnPhong, specularExponent);
+                float3 specularLight = pow(blinnPhong, specularExponent) * _Gloss;
                 specularLight *= _LightColor0;
 
                 //fresnel
@@ -161,7 +163,7 @@ Shader "Unlit/SimpleLighting"
                 //specularLight -= fresnel;
                 
                 //return float4( diffuseLight * _Color + specularLight - fresnel,1);
-                return float4( diffuseLight * _Color + specularLight,1);
+                return float4( diffuseLight * _Color + specularLight,1) * .5;
             }
             ENDCG
         }
